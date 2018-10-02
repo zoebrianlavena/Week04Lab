@@ -11,11 +11,7 @@
         <form method="post" action="login">
             Username: <input type="text" name="username" value="${usernamevalue}"> <br>
             Password: <input type="password" name="password"> <br>
-            <label><input type="checkbox" name="rememberme"
-                          <c:if test="${checkbox eq true}">
-                              checked
-                          </c:if>
-                          >Remember me</label> <br>
+            <label><input type="checkbox" name="rememberme" ${checkbox}>Remember me</label> <br>
             <input type="submit" value="Login">        
         </form>
         <div>

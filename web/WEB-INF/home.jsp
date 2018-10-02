@@ -9,11 +9,6 @@
     <body>
         <h1>Home Page</h1>
         Hello ${user} <br>
-        <a href="login?logout=logout">Log out</a>
-        
-        <c:if test="${user eq null}">
-            <c:redirect url="/login" />
-        </c:if>
-        
+        <a href="login?logout=logout">Log out</a>  
     </body>
 </html>

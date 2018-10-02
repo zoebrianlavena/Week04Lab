@@ -16,18 +16,33 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         String logout = request.getParameter("logout");
-        if (logout != null) {
-            session.removeAttribute("user");
-            request.setAttribute("message", "You have successfully logged out.");
-        }
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("betty") || cookie.getName().equals("adam")) {
-                session.setAttribute("usernamevalue", cookie.getName());
-                session.setAttribute("checkbox", true);
+
+        if (session.getAttribute("user") != null) {
+            if (logout != null) {
+                session.removeAttribute("user");
+                request.setAttribute("message", "You have successfully logged out.");
+
+                if (session.getAttribute("checkbox") != null) {
+                    Cookie[] cookies = request.getCookies();
+                    for (Cookie cookie : cookies) {
+                        if (cookie.getName().equals("betty") || cookie.getName().equals("adam")) {
+                            session.setAttribute("usernamevalue", cookie.getName());
+                            session.setAttribute("checkbox", "checked");
+                        }
+                    }
+                } else {
+                    session.removeAttribute("usernamevalue");
+                    session.removeAttribute("checkbox");
+                }
+                getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+
+            } else {
+                response.sendRedirect("home");
             }
+        } else {
+            getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
         }
-        getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+
     }
 
     @Override
@@ -40,20 +55,23 @@ public class LoginServlet extends HttpServlet {
         UserService userservice = new UserService();
         User user = userservice.login(username, password);
 
-        HttpSession session = request.getSession();
         if (user != null) {
+            HttpSession session = request.getSession();
             //create a session
             //if checkbox is checked, create cookie
             if (request.getParameter("rememberme") != null) {
                 Cookie cookie = new Cookie(username, session.getId());
+                cookie.setMaxAge(60 * 60 * 24 * 365 * 2);
                 response.addCookie(cookie);
-            //if checkbox is not checked, and cookie exists, remove cookie
+                session.setAttribute("checkbox", "checked");
+                //if checkbox is not checked, and cookie exists, remove cookie
             } else if (request.getParameter("rememberme") == null) {
                 Cookie[] cookies = request.getCookies();
                 for (Cookie cookie : cookies) {
                     if (cookie.getName().equals("betty") || cookie.getName().equals("adam")) {
                         cookie.setMaxAge(0);
                         response.addCookie(cookie);
+                        session.removeAttribute("checkbox");
                     }
                 }
             }
